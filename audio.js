@@ -106,24 +106,17 @@ class AudioProcessor {
 				}
 				this.audioData = newData
 			},
-			reverb: (duration = 1.0, decay = 0.5, density = 0.5) => {
-				if (this.audioData.length === 0) return
-				if (duration <= 0 || decay <= 0 || decay >= 1 || density <= 0 || density > 1) {
-					console.warn("Invalid duration or decay values.")
-					return
-				}
-				const delayLength = Math.floor(this.sampleRate * duration)
-				if (delayLength <= 0) return
-				const newData = new Float32Array(this.audioData.length + delayLength)
-				newData.set(this.audioData)
-				let feedback = 1.0
-				for (let i = 0; i < this.audioData.length; i++) {
-					const delaySample = i - delayLength
-					if (delaySample >= 0) {
-						newData[i] += newData[delaySample] * Math.pow(decay, density * (i / this.audioData.length));
-					}
+			pitchShift: (semitones) => {
+				const factor = Math.pow(2, semitones / 12)
+				const newSampleRate = this.sampleRate * factor
+				const newLength = Math.floor(this.audioData.length * (this.sampleRate / newSampleRate))
+				const newData = new Float32Array(newLength)
+				for (let i = 0; i < newLength; i++) {
+					const srcIndex = Math.floor(i * (this.audioData.length / newLength))
+					newData[i] = this.audioData[srcIndex] || 0
 				}
 				this.audioData = newData
+				this.sampleRate = newSampleRate
 			}
 		}
 	}
