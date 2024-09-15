@@ -25,7 +25,7 @@
                 const audioData1 = await fileToAudioData(fileInput1);
                 const audioProcessor1 = new AudioProcessor(audioData1);
 
-audioProcessor1.FX.reverb(3, 0.9);
+audioProcessor1.FX.reverb(0.5, 2);
 
                 const combinedAudioBlob = audioProcessor1.convertToWav('blob');
                 const downloadLink = document.getElementById('downloadLink');
