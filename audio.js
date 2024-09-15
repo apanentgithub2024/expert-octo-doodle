@@ -50,6 +50,30 @@ class AudioProcessor {
 				for (let i = this.audioData.length - 1; i >= durat; i--) {
 					this.audioData[i] *= (this.audioData.length - i) / duration
 				}
+			},
+			combineAudioSynchronously: (audioData = new Float32Array([])) => {
+				if (!(audioData instanceof Float32Array)) {
+					console.error("Input must be a Float32Array.")
+					audioData = new Float32Array([])
+				}
+				const oldAudioData = new Float32Array(this.audioData.length + audioData.length)
+				oldAudioData.set(this.audioData)
+				oldAudioData.set(audioData, this.audioData.length)
+				this.audioData = oldAudioData
+			},
+			combineAudioAsynchronously: (audioData = new Float32Array([])) => {
+				if (!(audioData instanceof Float32Array)) {
+					console.error("Input must be a Float32Array.")
+					audioData = new Float32Array([])
+				}
+				const oldAudioData = new Float32Array(Math.max(this.audioData.length, audioData.length))
+				for (let i = 0; i < oldAudioData.length; i++) {
+					oldAudioData[i] = ((this.audioData[i] || 0) + (audioData[i] || 0)) / 2
+				}
+				this.audioData = oldAudioData
+			},
+			reverse: () => {
+				this.audioData = new Float32Array(Array.from(this.audioData).reverse())
 			}
 		}
 	}
@@ -92,5 +116,8 @@ class AudioProcessor {
 	}
 	restore() {
 		this.audioData.set(this.backupData)
+	}
+	static sampleStatic(length = 48000) {
+		return new AudioProcessor(new Float32Array(new Array(length).map(() => Math.random())))
 	}
 }
