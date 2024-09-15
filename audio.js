@@ -1,0 +1,96 @@
+class AudioProcessor {
+	constructor(audioData = new Float32Array([]), sampleRate = 48000) {
+		if (!(audioData instanceof Float32Array)) {
+			console.error("Input must be a Float32Array.")
+			this.audioData = new Float32Array([])
+		} else {
+			this.audioData = audioData
+		}
+		this.sampleRate = sampleRate
+		this.backupData = new Float32Array(this.audioData)
+		this.FX = {
+			normalize: () => {
+				if (this.audioData.length === 0) return
+				const max = Math.max(...this.audioData)
+				const min = Math.min(...this.audioData)
+				const range = max - min
+				if (range === 0) return
+				for (let i = 0; i < this.audioData.length; i++) {
+					this.audioData[i] = (this.audioData[i] - min) / range
+				}
+			},
+			applyGain: gain => {
+				if (gain < 0) {
+					console.warn("Gain should be a non-negative value.")
+					return
+				}
+				for (let i = 0; i < this.audioData.length; i++) {
+					this.audioData[i] = Math.max(-1, Math.min(1, this.audioData[i] * gain))
+				}
+			},
+			forbiddenFaster: every => {
+				console.warn("This method is intended for playful purposes! If you want a more advanced way of boosting the audio's speed, use another method instead.")
+				const per = every * this.sampleRate
+				this.audioData = Array.from(this.audioData)
+				for (let i = 0; i < this.audioData.length; i += per) {
+					const fli = Math.floor(i), aud = this.audioData[fli]
+					this.audioData[fli] = (aud + (this.audioData[fli + 1] || aud)) / 2
+					this.audioData.splice(fli + 1, 1)
+				}
+				this.audioData = new Float32Array(this.audioData)
+			},
+			fadeIn: (duration = 48000) => {
+				const durat = Math.min(duration, this.audioData.length)
+				for (let i = 0; i < durat; i++) {
+					this.audioData[i] *= i / duration
+				}
+			},
+			fadeOut: (duration = 48000) => {
+				const durat = Math.max(this.audioData.length - duration, 0)
+				for (let i = this.audioData.length - 1; i >= durat; i--) {
+					this.audioData[i] *= (this.audioData.length - i) / duration
+				}
+			}
+		}
+	}
+	load(array) {
+		if (!(array instanceof Float32Array)) {
+			console.error("Input must be a Float32Array.")
+			return
+		}
+		this.audioData = array
+		this.backupData = new Float32Array(this.audioData)
+	}
+	convertToWav(exp = "blob") {
+		const numChannels = 1;
+		const buffer = new ArrayBuffer(44 + this.audioData.length * 2)
+		const view = new DataView(buffer)
+		writeString(view, 0, 'RIFF')
+		view.setUint32(4, 36 + this.audioData.length * 2, true)
+		writeString(view, 8, 'WAVE')
+		writeString(view, 12, 'fmt ')
+		view.setUint32(16, 16, true)
+		view.setUint16(20, 1, true) // PCM format
+		view.setUint16(22, numChannels, true)
+		view.setUint32(24, this.sampleRate, true)
+		view.setUint32(28, this.sampleRate * 2, true)
+		view.setUint16(32, 2, true)
+		view.setUint16(34, 16, true) // 16-bit samples
+		writeString(view, 36, 'data')
+		view.setUint32(40, this.audioData.length * 2, true)
+		let offset = 44
+		for (let i = 0; i < this.audioData.length; i++) {
+			view.setInt16(offset, Math.max(-32768, Math.min(32767, this.audioData[i] * 32767)), true)
+			offset += 2
+		}
+		function writeString(view, offset, string) {
+			for (let i = 0; i < string.length; i++) {
+				view.setUint8(offset + i, string.charCodeAt(i))
+			}
+		}
+		return exp == "blob" ? new Blob([view], {type: 'audio/wav'}) : exp == "dataview" ? view : undefined
+	}
+	restore() {
+		this.audioData.set(this.backupData)
+	}
+}
