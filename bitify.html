@@ -9,6 +9,7 @@
     <input type="file" id="fileInput1" accept="audio/*">
     <button id="combineButton">Bitify Audio</button>
     <a id="downloadLink" style="display: none;">Download Bitified Audio</a>
+    <audio id="audio" controls></audio>
 
     <script src="audio.js"></script>
     <script>
@@ -28,10 +29,18 @@
 
                 const combinedAudioBlob = audioProcessor1.convertToWav('blob');
                 const downloadLink = document.getElementById('downloadLink');
-                downloadLink.href = URL.createObjectURL(combinedAudioBlob);
+                const u = URL.createObjectURL(combinedAudioBlob);
+                downloadLink.href = u;
                 downloadLink.download = 'combined-audio.wav';
                 downloadLink.textContent = 'Download Combined Audio';
                 downloadLink.style.display = 'block';
+                downloadLink.onclick = function() {
+                    setTimeout(function() {
+                        downloadLink.src = "";
+                        URL.revokeObjectURL(u);
+                    }, 100)
+                }
+                document.getElementById("audio").src = u;
             } catch (error) {
                 console.error('Error processing audio files:', error);
             }
