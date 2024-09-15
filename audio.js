@@ -93,13 +93,6 @@ class AudioProcessor {
 					return
 				}
 				this.audioData = new Float32Array([...this.audioData].map(sample => Math.round(sample * bits) / bits))
-			},
-			chop: (bits = 256) => {
-				if (![4, 8, 16, 32, 64, 128, 256].includes(bits)) {
-					console.warn("The bits must be squared (exponentially).")
-					return
-				}
-				this.audioData = new Float32Array([...this.audioData].map(sample => Math.trunc(sample * bits) / bits)) // 0.5 would be 1, while -0.5 would be -1
 			}
 		}
 	}
