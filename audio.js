@@ -120,7 +120,7 @@ class AudioProcessor {
 				for (let i = 0; i < this.audioData.length; i++) {
 					const delaySample = i - delayLength
 					if (delaySample >= 0) {
-						newData[i] += newData[feedbackSampleIndex] * Math.pow(decay, density * (i / this.audioData.length));
+						newData[i] += newData[delaySample] * Math.pow(decay, density * (i / this.audioData.length));
 					}
 				}
 				this.audioData = newData
