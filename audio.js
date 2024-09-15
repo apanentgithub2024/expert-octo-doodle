@@ -22,7 +22,7 @@ class AudioProcessor {
 					this.audioData[i] /= maxAbs
 				}
 			},
-			applyGain: gain => {
+			gain: gain => {
 				if (gain < 0) {
 					console.warn("Gain should be a non-negative value.")
 					return
