@@ -33,7 +33,7 @@ class AudioProcessor {
 			},
 			forbiddenFaster: factor => {
 				console.warn("This method is intended for playful purposes! If you want a more advanced way of boosting the audio's speed, use another method instead.")
-				this.audioData = new Float32Array(Array.from(this.audioData).filter((_, i) => i % factor === 0))
+				this.audioData = new Float32Array(Array.from(this.audioData).filter((_, i) => i % factor > 0))
 			},
 			fadeIn: (duration = 48000) => {
 				const durat = Math.min(duration, this.audioData.length)
