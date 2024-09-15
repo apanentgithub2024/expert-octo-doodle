@@ -109,7 +109,7 @@ class AudioProcessor {
 			reverb: lessLasting => {
 				if (this.audioData.length === 0) return
 				if (lessLasting <= 1) return
-				for (let i = 0; i < this.audioData.length; i++) {
+				for (let i = 1; i < this.audioData.length; i++) {
 					this.audioData[i] = (this.audioData[i] + this.audioData[i - 1] / lessLasting)
 				}
 			}
