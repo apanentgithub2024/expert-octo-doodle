@@ -110,7 +110,7 @@ class AudioProcessor {
 				if (this.audioData.length === 0) return
 				if (lessLasting <= 1) return
 				for (let i = 1; i < this.audioData.length; i++) {
-					this.audioData[i] = (this.audioData[i] + this.audioData[i - 1] / lessLasting)
+					this.audioData[i] = (this.audioData[i] + this.audioData[i - 1]) / lessLasting
 				}
 			}
 		}
