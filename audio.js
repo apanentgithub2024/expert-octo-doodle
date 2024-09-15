@@ -71,7 +71,7 @@ class AudioProcessor {
 			reverse: () => {
 				this.audioData = new Float32Array([...this.audioData].reverse())
 			},
-			echo: (layers = 3, samplesDelay = 300) => {
+			echo: (layers = 3, samplesDelay = 9000) => {
 				if (layers <= 0 || samplesDelay <= 0) return
 				const totalLength = this.audioData.length + (samplesDelay * layers)
 				const newData = new Float32Array(totalLength)
