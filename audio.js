@@ -33,7 +33,7 @@ class AudioProcessor {
 			},
 			forbiddenFaster: factor => {
 				console.warn("This method is intended for playful purposes! If you want a more advanced way of boosting the audio's speed, use another method instead.")
-				this.audioData = new Float32Array(Array.from(this.audioData).filter((_, i) => i % factor > 0))
+				this.audioData = new Float32Array(Array.from(this.audioData).filter((_, i) => i % factor < 1))
 			},
 			fadeIn: (duration = 48000) => {
 				const durat = Math.min(duration, this.audioData.length)
@@ -93,6 +93,18 @@ class AudioProcessor {
 					return
 				}
 				this.audioData = new Float32Array([...this.audioData].map(sample => Math.round(sample * bits) / bits))
+			},
+			forbiddenSlowDown: factor => {
+				if (this.audioData.length === 0) return
+				if (factor < 1) {
+					console.warn("If you want to make the audio faster, use the 'forbiddenFaster' method!")
+					return
+				}
+				const newData = new Float32Array(Math.floor(this.audioData.length * factor))
+				for (let i = 0; i < newData.length; i++) {
+					newData[i] = this.audioData[Math.floor(i / factor)] || 0
+				}
+				this.audioData = newData
 			}
 		}
 	}
