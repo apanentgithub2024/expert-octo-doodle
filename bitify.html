@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Combine Audio Files</title>
+</head>
+<body>
+    <input type="file" id="fileInput1" accept="audio/*">
+    <button id="combineButton">Bitify Audio</button>
+    <a id="downloadLink" style="display: none;">Download Bitified Audio</a>
+
+    <script src="audio.js"></script>
+    <script>
+        document.getElementById('combineButton').addEventListener('click', async () => {
+            const fileInput1 = document.getElementById('fileInput1').files[0];
+
+            if (!fileInput1) {
+                alert('Please select both audio files.');
+                return;
+            }
+
+            try {
+                const audioData1 = await fileToAudioData(fileInput1);
+                const audioProcessor2 = new AudioProcessor(audioData1);
+
+                audioProcessor1.FX.quantize(256);
+
+                const combinedAudioBlob = audioProcessor1.convertToWav('blob');
+                const downloadLink = document.getElementById('downloadLink');
+                downloadLink.href = URL.createObjectURL(combinedAudioBlob);
+                downloadLink.download = 'combined-audio.wav';
+                downloadLink.textContent = 'Download Combined Audio';
+                downloadLink.style.display = 'block';
+            } catch (error) {
+                console.error('Error processing audio files:', error);
+            }
+        });
+
+        async function fileToAudioData(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const arrayBuffer = event.target.result;
+                    const audioContext = new AudioContext();
+                    audioContext.decodeAudioData(arrayBuffer, (audioBuffer) => {
+                        resolve(new Float32Array(audioBuffer.getChannelData(0)));
+                    }, reject);
+                };
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(file);
+            });
+        }
+    </script>
+</body>
+</html>
