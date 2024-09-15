@@ -7,7 +7,7 @@
 </head>
 <body>
     <input type="file" id="fileInput1" accept="audio/*">
-    <button id="combineButton">Bitify Audio</button>
+    <button id="combineButton">Bitify Audio       d</button>
     <a id="downloadLink" style="display: none;">Download Bitified Audio</a>
 
     <script src="audio.js"></script>
@@ -24,7 +24,7 @@
                 const audioData1 = await fileToAudioData(fileInput1);
                 const audioProcessor1 = new AudioProcessor(audioData1);
 
-                audioProcessor1.FX.quantize(256);
+                audioProcessor1.FX.quantize(64);
 
                 const combinedAudioBlob = audioProcessor1.convertToWav('blob');
                 const downloadLink = document.getElementById('downloadLink');
