@@ -7,8 +7,8 @@
 </head>
 <body>
     <input type="file" id="fileInput1" accept="audio/*">
-    <button id="combineButton">Bitify Audiohhh</button>
-    <a id="downloadLink" style="display: none;">Download Bitified Audio</a>
+    <button id="combineButton">Echo Audio</button>
+    <a id="downloadLink" style="display: none;">Download Echoed Audio</a>
     <audio id="audio" controls></audio>
 
     <script src="audio.js"></script>
@@ -25,14 +25,14 @@
                 const audioData1 = await fileToAudioData(fileInput1);
                 const audioProcessor1 = new AudioProcessor(audioData1);
 
-                audioProcessor1.FX.chop(128);
+                audioProcessor1.FX.echo();
 
                 const combinedAudioBlob = audioProcessor1.convertToWav('blob');
                 const downloadLink = document.getElementById('downloadLink');
                 const u = URL.createObjectURL(combinedAudioBlob);
                 downloadLink.href = u;
-                downloadLink.download = 'combined-audio.wav';
-                downloadLink.textContent = 'Download Combined Audio';
+                downloadLink.download = 'echoed-audio.wav';
+                downloadLink.textContent = 'Download Echoed Audio';
                 downloadLink.style.display = 'block';
                 downloadLink.onclick = function() {
                     setTimeout(function() {
