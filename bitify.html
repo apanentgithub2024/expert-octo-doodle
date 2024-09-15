@@ -7,7 +7,7 @@
 </head>
 <body>
     <input type="file" id="fileInput1" accept="audio/*">
-    <button id="combineButton">Echo Audio</button>
+    <button id="combineButton">Echo Audio j</button>
     <a id="downloadLink" style="display: none;">Download Echoed Audio</a>
     <audio id="audio" controls></audio>
 
@@ -25,7 +25,7 @@
                 const audioData1 = await fileToAudioData(fileInput1);
                 const audioProcessor1 = new AudioProcessor(audioData1);
 
-                audioProcessor1.FX.echo();
+                audioProcessor1.FX.echo(10, 600);
 
                 const combinedAudioBlob = audioProcessor1.convertToWav('blob');
                 const downloadLink = document.getElementById('downloadLink');
