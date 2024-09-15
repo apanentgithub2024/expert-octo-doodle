@@ -106,9 +106,9 @@ class AudioProcessor {
 				}
 				this.audioData = newData
 			},
-			reverb: (duration = 1.0, decay = 0.5) => {
+			reverb: (duration = 1.0, decay = 0.5, density = 0.5) => {
 				if (this.audioData.length === 0) return
-				if (duration <= 0 || decay <= 0 || decay >= 1) {
+				if (duration <= 0 || decay <= 0 || decay >= 1 || density <= 0 || density > 1) {
 					console.warn("Invalid duration or decay values.")
 					return
 				}
@@ -120,8 +120,7 @@ class AudioProcessor {
 				for (let i = 0; i < this.audioData.length; i++) {
 					const delaySample = i - delayLength
 					if (delaySample >= 0) {
-						newData[i] += feedback * newData[delaySample]
-						feedback *= decay
+						newData[i] += newData[feedbackSampleIndex] * Math.pow(decay, density * (i / this.audioData.length));
 					}
 				}
 				this.audioData = newData
