@@ -106,18 +106,27 @@ class AudioProcessor {
 				}
 				this.audioData = newData
 			},
-			pitchShift: (semitones) => {
-				const factor = Math.pow(2, semitones / 12)
-				const newSampleRate = this.sampleRate * factor
-				const newLength = Math.floor(this.audioData.length * (this.sampleRate / newSampleRate))
-				const newData = new Float32Array(newLength)
-				for (let i = 0; i < newLength; i++) {
-					const srcIndex = Math.floor(i * (this.audioData.length / newLength))
-					newData[i] = this.audioData[srcIndex] || 0
-				}
-				this.audioData = newData
-				this.sampleRate = newSampleRate
-			}
+			pitchShift: (semitones = 0) => {
+                if (typeof semitones !== 'number') {
+                    console.error("Semitones should be a number.")
+                    return
+                }
+
+                const factor = Math.pow(2, semitones / 12);
+                const newSampleRate = this.sampleRate * factor;
+
+                // Recalculate audio data length with new sample rate
+                const newLength = Math.round(this.audioData.length * (this.sampleRate / newSampleRate));
+                const newAudioData = new Float32Array(newLength);
+
+                for (let i = 0; i < newLength; i++) {
+                    const index = Math.round(i * (this.sampleRate / newSampleRate));
+                    newAudioData[i] = this.audioData[index] || 0;
+                }
+
+                this.audioData = newAudioData;
+                this.sampleRate = newSampleRate;
+            }
 		}
 	}
 	load(array) {
