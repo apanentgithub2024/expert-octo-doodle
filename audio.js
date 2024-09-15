@@ -106,12 +106,25 @@ class AudioProcessor {
 				}
 				this.audioData = newData
 			},
-			reverb: lessLasting => {
+			reverb: (duration = 1.0, decay = 0.5) => {
 				if (this.audioData.length === 0) return
-				if (lessLasting <= 1) return
-				for (let i = 1; i < this.audioData.length; i++) {
-					this.audioData[i] = (this.audioData[i] + this.audioData[i - 1]) / lessLasting
+				if (duration <= 0 || decay <= 0 || decay >= 1) {
+					console.warn("Invalid duration or decay values.")
+					return
 				}
+				const delayLength = Math.floor(this.sampleRate * duration)
+				if (delayLength <= 0) return
+				const newData = new Float32Array(this.audioData.length + delayLength)
+				newData.set(this.audioData)
+				let feedback = 1.0
+				for (let i = 0; i < this.audioData.length; i++) {
+					const delaySample = i - delayLength
+					if (delaySample >= 0) {
+						newData[i] += feedback * newData[delaySample]
+						feedback *= decay
+					}
+				}
+				this.audioData = newData
 			}
 		}
 	}
