@@ -11,12 +11,15 @@ class AudioProcessor {
 		this.FX = {
 			normalize: () => {
 				if (this.audioData.length === 0) return
-				const max = Math.max(...this.audioData)
-				const min = Math.min(...this.audioData)
-				const range = max - min
-				if (range === 0) return
+				let max = 0, min = 0
 				for (let i = 0; i < this.audioData.length; i++) {
-					this.audioData[i] = (this.audioData[i] - min) / range
+					max = max < this.audioData[i] ? this.audioData[i] : max
+					min = min > this.audioData[i] ? this.audioData[i] : min
+				}
+				const maxAbs = Math.max(Math.abs(max), Math.abs(min))
+				if (maxAbs === 0) return
+				for (let i = 0; i < this.audioData.length; i++) {
+					this.audioData[i] /= maxAbs
 				}
 			},
 			applyGain: gain => {
@@ -28,16 +31,9 @@ class AudioProcessor {
 					this.audioData[i] = Math.max(-1, Math.min(1, this.audioData[i] * gain))
 				}
 			},
-			forbiddenFaster: every => {
+			forbiddenFaster: factor => {
 				console.warn("This method is intended for playful purposes! If you want a more advanced way of boosting the audio's speed, use another method instead.")
-				const per = every * this.sampleRate
-				this.audioData = Array.from(this.audioData)
-				for (let i = 0; i < this.audioData.length; i += per) {
-					const fli = Math.floor(i), aud = this.audioData[fli]
-					this.audioData[fli] = (aud + (this.audioData[fli + 1] || aud)) / 2
-					this.audioData.splice(fli + 1, 1)
-				}
-				this.audioData = new Float32Array(this.audioData)
+				this.audioData = new Float32Array(Array.from(this.audioData).filter((_, i) => i % factor === 0))
 			},
 			fadeIn: (duration = 48000) => {
 				const durat = Math.min(duration, this.audioData.length)
@@ -73,7 +69,30 @@ class AudioProcessor {
 				this.audioData = oldAudioData
 			},
 			reverse: () => {
-				this.audioData = new Float32Array(Array.from(this.audioData).reverse())
+				this.audioData = new Float32Array([...this.audioData].reverse())
+			},
+			echo: (layers = 3, samplesDelay = 300) => {
+				if (layers <= 0 || samplesDelay <= 0) return
+				const totalLength = this.audioData.length + (samplesDelay * layers)
+				const newData = new Float32Array(totalLength)
+				newData.set(this.audioData)
+				for (let i = 1; i <= layers; i++) {
+					const delayOffset = i * samplesDelay
+					for (let j = 0; j < this.audioData.length; j++) {
+						const index = j + delayOffset
+						if (index < totalLength) {
+							newData[index] += this.audioData[j] * Math.pow(0.5, i)
+						}
+					}
+				}
+				this.audioData = newData
+			},
+			quantize: (bits = 256) => {
+				if (![4, 8, 16, 32, 64, 128, 256].includes(bits)) {
+					console.warn("The bits must be squared (exponentially).")
+					return
+				}
+				this.audioData = new Float32Array([...this.audioData].map(sample => Math.round(sample * bits) / bits))
 			}
 		}
 	}
@@ -115,9 +134,9 @@ class AudioProcessor {
 		return exp == "blob" ? new Blob([view], {type: 'audio/wav'}) : exp == "dataview" ? view : undefined
 	}
 	restore() {
-		this.audioData.set(this.backupData)
+		this.audioData = new Float32Array(this.backupData)
 	}
 	static sampleStatic(length = 48000) {
-		return new AudioProcessor(new Float32Array(new Array(length).map(() => Math.random())))
+		return new AudioProcessor(new Float32Array(new Array(length, () => Math.random() * 2 - 1)))
 	}
 }
