@@ -26,6 +26,7 @@
                 const audioProcessor1 = new AudioProcessor(audioData1);
 
 audioProcessor1.FX.reverb(1.2);
+audioProcessor1.FX.normalize();
 
                 const combinedAudioBlob = audioProcessor1.convertToWav('blob');
                 const downloadLink = document.getElementById('downloadLink');
