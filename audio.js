@@ -33,7 +33,7 @@ class AudioProcessor {
 			},
 			forbiddenFaster: factor => {
 				console.warn("This method is intended for playful purposes! If you want a more advanced way of boosting the audio's speed, use another method instead.")
-				this.audioData = new Float32Array(Array.from(this.audioData).filter((_, i) => i % factor < 1))
+				this.audioData = new Float32Array([...this.audioData].filter((_, i) => i % factor < 1))
 			},
 			fadeIn: (duration = 48000) => {
 				const durat = Math.min(duration, this.audioData.length)
@@ -94,7 +94,7 @@ class AudioProcessor {
 				}
 				this.audioData = new Float32Array([...this.audioData].map(sample => Math.round(sample * bits) / bits))
 			},
-			forbiddenSlowDown: factor => {
+			slowDown: factor => {
 				if (this.audioData.length === 0) return
 				if (factor < 1) {
 					console.warn("If you want to make the audio faster, use the 'forbiddenFaster' method!")
@@ -106,27 +106,15 @@ class AudioProcessor {
 				}
 				this.audioData = newData
 			},
-			pitchShift: (semitones = 0) => {
-                if (typeof semitones !== 'number') {
-                    console.error("Semitones should be a number.")
-                    return
-                }
-
-                const factor = Math.pow(2, semitones / 12);
-                const newSampleRate = this.sampleRate * factor;
-
-                // Recalculate audio data length with new sample rate
-                const newLength = Math.round(this.audioData.length * (this.sampleRate / newSampleRate));
-                const newAudioData = new Float32Array(newLength);
-
-                for (let i = 0; i < newLength; i++) {
-                    const index = Math.round(i * (this.sampleRate / newSampleRate));
-                    newAudioData[i] = this.audioData[index] || 0;
-                }
-
-                this.audioData = newAudioData;
-                this.sampleRate = newSampleRate;
-            }
+			distort: (amount = 1) => {
+				if (amount < 0) {
+					console.warn("Gain should be a non-negative value.")
+					return
+				}
+				for (let i = 0; i < this.audioData.length; i++) {
+					this.audioData[i] = Math.tanh(this.audioData[i] * amount)
+				}
+			}
 		}
 	}
 	load(array) {
