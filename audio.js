@@ -158,6 +158,6 @@ class AudioProcessor {
 		this.audioData = new Float32Array(this.backupData)
 	}
 	static sampleStatic(length = 48000) {
-		return new AudioProcessor(new Float32Array(new Array(length, () => Math.random() * 2 - 1)))
+		return new AudioProcessor(new Float32Array(new Array({length}, () => Math.random() * 2 - 1)))
 	}
 }
