@@ -114,6 +114,26 @@ class AudioProcessor {
 				for (let i = 0; i < this.audioData.length; i++) {
 					this.audioData[i] = Math.tanh(this.audioData[i] * amount)
 				}
+			},
+			pitchShift: (semitones = 0) => {
+				if (this.audioData.length === 0) return
+				const pitchFactor = Math.pow(2, semitones / 12)
+				const newLength = Math.floor(this.audioData.length / pitchFactor)
+				const resampledData = new Float32Array(newLength)
+				for (let i = 0; i < newLength; i++) {
+					const sampleIndex = i * pitchFactor
+					const leftIndex = Math.floor(sampleIndex)
+					const rightIndex = Math.ceil(sampleIndex)
+					if (rightIndex < this.audioData.length) {
+						const leftSample = this.audioData[leftIndex]
+						const rightSample = this.audioData[rightIndex]
+						const t = sampleIndex - leftIndex
+						resampledData[i] = leftSample * (1 - t) + rightSample * t
+					} else {
+						resampledData[i] = this.audioData[leftIndex]
+					}
+				}
+				this.audioData = resampledData
 			}
 		}
 	}
