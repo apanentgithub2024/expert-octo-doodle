@@ -116,39 +116,27 @@ class AudioProcessor {
 				}
 			},
 			pitchShift: (semitones = 0) => {
-				if (this.audioData.length === 0) return
+				if (this.audioData.length === 0) return;
 				const pitchFactor = Math.pow(2, semitones / 12)
 				const newLength = Math.floor(this.audioData.length / pitchFactor)
-				const stretchedLength = newLength
 				const resampledData = new Float32Array(newLength)
 				for (let i = 0; i < newLength; i++) {
 					const sampleIndex = i * pitchFactor
 					const leftIndex = Math.floor(sampleIndex)
-					const rightIndex = Math.ceil(sampleIndex)
-					if (rightIndex < this.audioData.length) {
-						const leftSample = this.audioData[leftIndex]
-						const rightSample = this.audioData[rightIndex]
-						const t = sampleIndex - leftIndex
-						resampledData[i] = leftSample * (1 - t) + rightSample * t
-					} else {
-						resampledData[i] = this.audioData[leftIndex]
-					}
+					const rightIndex = Math.min(Math.ceil(sampleIndex), this.audioData.length - 1)
+					const t = sampleIndex - leftIndex
+					resampledData[i] = (1 - t) * this.audioData[leftIndex] + t * this.audioData[rightIndex]
 				}
-				const adjustedData = new Float32Array(this.audioData.length)
-				for (let i = 0; i < adjustedData.length; i++) {
-					const index = i * stretchedLength / this.audioData.length
-					const leftIndex = Math.floor(index)
-					const rightIndex = Math.ceil(index)
-					const t = index - leftIndex
-					if (rightIndex < resampledData.length) {
-						const leftSample = resampledData[leftIndex]
-						const rightSample = resampledData[rightIndex]
-						adjustedData[i] = leftSample * (1 - t) + rightSample * t
-					} else {
-						adjustedData[i] = resampledData[leftIndex]
-					}
+				const stretchedData = new Float32Array(this.audioData.length)
+				const cache = newLength - 1
+				for (let i = 0; i < stretchedData.length; i++) {
+					const stretchIndex = i * newLength / this.audioData.length
+					const leftIndex = Math.floor(stretchIndex)
+					const rightIndex = Math.min(Math.ceil(stretchIndex), cache)
+					const t = stretchIndex - leftIndex
+					stretchedData[i] = (1 - t) * resampledData[leftIndex] + t * resampledData[rightIndex]
 				}
-				this.audioData = adjustedData
+				this.audioData = stretchedData
 			}
 		}
 	}
