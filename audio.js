@@ -133,7 +133,21 @@ class AudioProcessor {
 						resampledData[i] = this.audioData[leftIndex]
 					}
 				}
-				this.audioData = resampledData
+				const adjustedData = new Float32Array(this.audioData.length)
+				for (let i = 0; i < adjustedData.length; i++) {
+					const index = i * stretchedLength / this.audioData.length
+					const leftIndex = Math.floor(index)
+					const rightIndex = Math.ceil(index)
+					const t = index - leftIndex
+					if (rightIndex < resampledData.length) {
+						const leftSample = resampledData[leftIndex]
+						const rightSample = resampledData[rightIndex]
+						adjustedData[i] = leftSample * (1 - t) + rightSample * t
+					} else {
+						adjustedData[i] = resampledData[leftIndex]
+					}
+				}
+				this.audioData = adjustedData
 			}
 		}
 	}
