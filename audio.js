@@ -119,6 +119,7 @@ class AudioProcessor {
 				if (this.audioData.length === 0) return
 				const pitchFactor = Math.pow(2, semitones / 12)
 				const newLength = Math.floor(this.audioData.length / pitchFactor)
+				const stretchedLength = newLength
 				const resampledData = new Float32Array(newLength)
 				for (let i = 0; i < newLength; i++) {
 					const sampleIndex = i * pitchFactor
