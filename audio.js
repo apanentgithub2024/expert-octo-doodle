@@ -31,10 +31,6 @@ class AudioProcessor {
 					this.audioData[i] = Math.max(-1, Math.min(1, this.audioData[i] * gain))
 				}
 			},
-			forbiddenFaster: factor => {
-				console.warn("This method is intended for playful purposes! If you want a more advanced way of boosting the audio's speed, use another method instead.")
-				this.audioData = new Float32Array([...this.audioData].filter((_, i) => i % factor < 1))
-			},
 			fadeIn: (duration = 48000) => {
 				const durat = Math.min(duration, this.audioData.length)
 				for (let i = 0; i < durat; i++) {
@@ -94,7 +90,7 @@ class AudioProcessor {
 				}
 				this.audioData = new Float32Array([...this.audioData].map(sample => Math.round(sample * bits) / bits))
 			},
-			slowDown: factor => {
+			slowDown: (factor = 1) => {
 				if (this.audioData.length === 0) return
 				if (factor < 1) {
 					console.warn("If you want to make the audio faster, use the 'forbiddenFaster' method!")
@@ -115,9 +111,9 @@ class AudioProcessor {
 					this.audioData[i] = Math.tanh(this.audioData[i] * amount)
 				}
 			},
-			pitchShift: (semitones = 0) => {
+			speedUp: (semitones = 1) => {
 				if (this.audioData.length === 0) return;
-				const pitchFactor = Math.pow(2, semitones / 12)
+				const pitchFactor = Math.pow(2, semitones - 1)
 				const newLength = Math.floor(this.audioData.length / pitchFactor)
 				const resampledData = new Float32Array(newLength)
 				for (let i = 0; i < newLength; i++) {
@@ -127,16 +123,7 @@ class AudioProcessor {
 					const t = sampleIndex - leftIndex
 					resampledData[i] = (1 - t) * this.audioData[leftIndex] + t * this.audioData[rightIndex]
 				}
-				const stretchedData = new Float32Array(this.audioData.length)
-				const cache = newLength - 1
-				for (let i = 0; i < stretchedData.length; i++) {
-					const stretchIndex = i * newLength / this.audioData.length
-					const leftIndex = Math.floor(stretchIndex)
-					const rightIndex = Math.min(Math.ceil(stretchIndex), cache)
-					const t = stretchIndex - leftIndex
-					stretchedData[i] = (1 - t) * resampledData[leftIndex] + t * resampledData[rightIndex]
-				}
-				this.audioData = stretchedData
+				this.audioData = resampledData
 			}
 		}
 	}
