@@ -81,6 +81,6 @@ document.getElementById('generateSound').addEventListener('click', async () => {
         downloadLink.download = 'output.wav';
         downloadLink.style.display = 'block';
         downloadLink.textContent = 'Download WAV';
-        document.getElementById("audio").src = wavBlob
+        document.getElementById("audio").src = downloadLink.href
     };
 });
