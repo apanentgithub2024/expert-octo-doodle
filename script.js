@@ -71,6 +71,7 @@ document.getElementById('generateSound').addEventListener('click', async () => {
             const a = data[i + 3];
             floatArray[i / 4] = (r + g + b + a / 510) - 1;
         }
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
 
         const exporter = new FloatExporter(floatArray);
         const wavBlob = exporter.convertToWav();
@@ -80,5 +81,6 @@ document.getElementById('generateSound').addEventListener('click', async () => {
         downloadLink.download = 'output.wav';
         downloadLink.style.display = 'block';
         downloadLink.textContent = 'Download WAV';
+        document.getElementById("audio").src = wavBlob
     };
 });
