@@ -6,15 +6,13 @@ inputFile.addEventListener('change', (event) => {
     if (file) {
         const reader = new FileReader();
         reader.onload = (e) => {
+            console.log(e.target.result)
             const blob = new Blob([e.target.result], { type: 'video/mp4' });
             const url = URL.createObjectURL(blob);
             const videoElement = document.createElement('video');
             videoElement.src = url;
             videoElement.controls = true;
             document.body.appendChild(videoElement);
-            videoElement.onloadedmetadata = () => {
-                URL.revokeObjectURL(url);
-            };
         };
         reader.readAsArrayBuffer(file);
     }
