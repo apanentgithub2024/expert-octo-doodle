@@ -83,7 +83,7 @@ document.getElementById('generateSound').addEventListener('click', async () => {
 });
 
 document.getElementById('textInterpretButton').addEventListener('click', async () => {
-    const input = document.getElementById('fileInput');
+    const input = document.getElementById('imageInput');
     const file = input.files[0];
 
     if (!file) {
