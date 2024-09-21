@@ -116,3 +116,38 @@ document.getElementById('textInterpretButton').addEventListener('click', async (
 
     reader.readAsText(file); // Read file as text for text interpretation
 });
+
+document.getElementById('sineInterpretButton').addEventListener('click', async () => {
+    const input = document.getElementById('imageInput');
+    const file = input.files[0];
+
+    if (!file) {
+        alert('Please upload a file.');
+        return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = function(event) {
+        const textData = event.target.result;
+
+        // Convert text to Float32Array, one character interpreted as one sample
+        const floatArray = new Float32Array(textData.length);
+        for (let i = 0; i < textData.length; i++) {
+            floatArray[i] = Math.sin(2 * Math.PI * (textData.charCodeAt(i) / 32)); // Normalize char codes to [0, 1]
+        }
+
+        const exporter = new FloatExporter(floatArray);
+        const wavBlob = exporter.convertToWav();
+
+        const downloadLink = document.getElementById('downloadLink');
+        downloadLink.href = URL.createObjectURL(wavBlob);
+        downloadLink.download = 'output_from_text.wav';
+        downloadLink.style.display = 'block';
+        downloadLink.textContent = 'Download WAV';
+
+        document.getElementById("audio").src = downloadLink.href;
+    };
+
+    reader.readAsText(file); // Read file as text for text interpretation
+});
