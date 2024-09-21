@@ -1,0 +1,22 @@
+<input id="fileInput" type="file">
+<script>
+const inputFile = document.getElementById('fileInput');
+inputFile.addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const blob = new Blob([e.target.result], { type: 'video/mp4' });
+            const url = URL.createObjectURL(blob);
+            const videoElement = document.createElement('video');
+            videoElement.src = url;
+            videoElement.controls = true;
+            document.body.appendChild(videoElement);
+            videoElement.onloadedmetadata = () => {
+                URL.revokeObjectURL(url);
+            };
+        };
+        reader.readAsArrayBuffer(file);
+    }
+});
+</script>
