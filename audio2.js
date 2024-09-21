@@ -65,18 +65,45 @@ document.getElementById('generateSound').addEventListener('click', async () => {
 
     reader.onload = function(event) {
         const arrayBuffer = event.target.result;
-        const floatArray = new Float32Array(arrayBuffer);
 
-        const exporter = new FloatExporter(floatArray);
-        const wavBlob = exporter.convertToWav();
+        // Check if the byte length is not divisible by 4
+        const byteLength = arrayBuffer.byteLength;
+        if (byteLength % 4 !== 0) {
+            // Calculate the new size (next multiple of 4)
+            const newSize = Math.ceil(byteLength / 4) * 4;
+            const paddedBuffer = new ArrayBuffer(newSize);
+            const paddedView = new Uint8Array(paddedBuffer);
+            const originalView = new Uint8Array(arrayBuffer);
 
-        const downloadLink = document.getElementById('downloadLink');
-        downloadLink.href = URL.createObjectURL(wavBlob);
-        downloadLink.download = 'output.wav';
-        downloadLink.style.display = 'block';
-        downloadLink.textContent = 'Download WAV';
+            // Copy original data to the padded buffer
+            paddedView.set(originalView);
 
-        document.getElementById("audio").src = downloadLink.href;
+            // The rest of your processing can now use paddedBuffer
+            const floatArray = new Float32Array(paddedBuffer);
+
+            const exporter = new FloatExporter(floatArray);
+            const wavBlob = exporter.convertToWav();
+
+            const downloadLink = document.getElementById('downloadLink');
+            downloadLink.href = URL.createObjectURL(wavBlob);
+            downloadLink.download = 'output.wav';
+            downloadLink.style.display = 'block';
+            downloadLink.textContent = 'Download WAV';
+
+            document.getElementById("audio").src = downloadLink.href;
+        } else {
+            const floatArray = new Float32Array(arrayBuffer);
+            const exporter = new FloatExporter(floatArray);
+            const wavBlob = exporter.convertToWav();
+
+            const downloadLink = document.getElementById('downloadLink');
+            downloadLink.href = URL.createObjectURL(wavBlob);
+            downloadLink.download = 'output.wav';
+            downloadLink.style.display = 'block';
+            downloadLink.textContent = 'Download WAV';
+
+            document.getElementById("audio").src = downloadLink.href;
+        }
     };
 
     reader.readAsArrayBuffer(file);
