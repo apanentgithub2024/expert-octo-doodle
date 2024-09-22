@@ -129,18 +129,14 @@
 
             audioElement.play();
         });
-
-        let lastIndex = 0, reLastI = 0
-
         function updateCanvasWithProgress(currentTime) {
             if (!imageData || audioDuration === 0) return;
-            lastIndex = reLastI;
 
             const totalPixels = canvas.width * canvas.height;
             const currentPixelIndex = Math.floor((currentTime / audioDuration) * totalPixels);
             const data = imageData.data;
 
-            for (let i = lastIndex; i < currentPixelIndex; i++) {
+            for (let i = 0; i < currentPixelIndex; i++) {
                 const index = i * 4;
                 data[index + 1] = 0;    // Green (set to 0)
                 data[index + 2] = 0;    // Blue (set to 0)
@@ -148,7 +144,6 @@
             }
 
             ctx.putImageData(imageData, 0, 0);
-            reLastI = totalPixels;
         }
     </script>
 </body>
