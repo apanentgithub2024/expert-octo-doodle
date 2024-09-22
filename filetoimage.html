@@ -21,7 +21,7 @@
 
             reader.onload = function(e) {
                 const text = e.target.result;
-                const pixelValues = text.split('').map(data => data.charCodeAt(0) / 256);
+                const pixelValues = text.split('').map(data => data.charCodeAt(0));
                 
                 const width = 50;
                 const height = Math.ceil(pixelValues.length / width);
