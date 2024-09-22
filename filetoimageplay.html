@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text to Image</title>
+</head>
+<body>
+    <input type="file" id="fileInput" />
+    <input type="number" step="1" id="width">
+    <button id="interp">Update Result</button>
+  <button id="play">Play Image</button>
+    <br>
+    <canvas id="canvas"></canvas>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let event = null
+        document.getElementById('fileInput').addEventListener('change', update);
+        document.getElementById('interp').addEventListener('click', handleFileSelect);
+        function update(e) {
+            event = e;
+            handleFileSelect(event);
+        }
+        function handleFileSelect() {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                const pixelValues = text.split('').map(data => data.charCodeAt(0));
+                const width = Number(document.getElementById("width").value || "480")
+                const height = Math.ceil(pixelValues.length / width);
+                canvas.width = width;
+                canvas.height = height;
+                const imageData = ctx.createImageData(width, height);
+                const data = imageData.data;
+                for (let y = 0; y < height; y++) {
+                    for (let x = 0; x < width; x++) {
+                        const value = pixelValues[x + (y * width)];
+                        const index = (y * width + x) * 4; // RGBA
+                        data[index] = value;
+                        data[index + 1] = value;
+                        data[index + 2] = value;
+                        data[index + 3] = 255;
+                    }
+                }
+                ctx.putImageData(imageData, 0, 0);
+            };
+            reader.readAsText(file);
+        }
+    </script>
+</body>
+</html>
