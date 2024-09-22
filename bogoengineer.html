@@ -32,7 +32,9 @@
                 "Audio files like MP3 are generally fine, but you may hear unexpected, loud glitch noises! You may also see that the audio abrubtly ends! This is normally because the settings in the file are configured. Those are called \"unused samples\"."
             ]
         }
-        const fileExtension = file.name.match(/.[a-zA-Z]+|($)/)[0]
+        let count = 0
+        file.name.replace(/\./g, () => count++)
+        const fileExtension = file.name.split(".")[count]
         if (warnings[fileExtension]) {
             for (let i = 0, warn = null; i < warnings[fileExtension].length && (warn = confirm(warnings[fileExtension][i])); i++) {
                 if (!warn) {
