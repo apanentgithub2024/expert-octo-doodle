@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BogoEngineering</title>
+    <title>Corruption Demonstration</title>
 </head>
 <body>
-    <h1>BogoEngineering: Convert Files!</h1>
+    <h1>Corrupt: Corrupt Any Files!</h1>
     <input type="file" id="fileInput" />
     <button id="convertButton">Convert and Revert</button>
     <a id="downloadLink" style="display:none;">Download Converted File</a>
@@ -26,10 +26,10 @@
             const uint8Array = new Uint8Array(arrayBuffer);
 
             // Step 2: Example manipulation: invert the bytes (for demonstration)
-            const manipulatedData = uint8Array.map(byte => byte / 3);  // Simple inversion for demonstration
+            const manipulatedData = uint8Array.map(byte => 255 - byte);  // Simple inversion for demonstration
 
-            // Step 3: Revert back (for now, just using the manipulated version)
-            const manipulatedBlob = new Blob([[...manipulatedData].map(byte => byte * 3)], { type: file.type });
+            // Step 3: Revert back with slight corruption
+            const manipulatedBlob = new Blob([[...manipulatedData].map(byte => Math.max(0, Math.round(255 - (Math.random() * 0.51)) - byte))], { type: file.type });
 
             // Set up download link
             const downloadLink = document.getElementById('downloadLink');
