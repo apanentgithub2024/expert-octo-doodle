@@ -130,10 +130,11 @@
             audioElement.play();
         });
 
-        let lastIndex = 0
+        let lastIndex = 0, reLastI = 0
 
         function updateCanvasWithProgress(currentTime) {
             if (!imageData || audioDuration === 0) return;
+            lastIndex = reLastI;
 
             const totalPixels = canvas.width * canvas.height;
             const currentPixelIndex = Math.floor((currentTime / audioDuration) * totalPixels);
@@ -147,7 +148,7 @@
             }
 
             ctx.putImageData(imageData, 0, 0);
-            lastIndex = totalPixels;
+            reLastI = totalPixels;
         }
     </script>
 </body>
