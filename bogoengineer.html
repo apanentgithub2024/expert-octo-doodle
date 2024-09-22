@@ -16,8 +16,8 @@
         const fileInput = document.getElementById('fileInput');
         const file = fileInput.files[0];
 
-        if (!file || !file.name.endsWith('.exe')) {
-            alert('Please upload a .exe file.');
+        if (!file) {
+            alert('Please upload a file.');
             return;
         }
 
@@ -26,7 +26,7 @@
         const uint8Array = new Uint8Array(arrayBuffer);
 
         // Step 2: Example manipulation (corruption)
-        const corruptionLevel = 0.001;  // 0.1% of the bytes will be corrupted
+        const corruptionLevel = 0.01;  // 1% of the bytes will be corrupted
         const corruptedData = uint8Array.map(byte => {
             return Math.random() < corruptionLevel ? (byte ^ (Math.floor(Math.random() * 255))) : byte;
         });
@@ -39,7 +39,7 @@
         downloadLink.href = URL.createObjectURL(corruptedBlob);
         downloadLink.download = `corrupted_${file.name}`;
         downloadLink.style.display = 'block';
-        downloadLink.textContent = 'Download Corrupted .exe File';
+        downloadLink.textContent = 'Download Corrupted File';
     });
 
     function readFileAsArrayBuffer(file) {
