@@ -8,12 +8,19 @@
 <body>
     <input type="file" id="fileInput" />
     <input type="number" step="1" id="width">
+    <button id="interp">Update Result</button>
     <canvas id="canvas"></canvas>
     <script>
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
-        document.getElementById('fileInput').addEventListener('change', handleFileSelect);
-        function handleFileSelect(event) {
+        let event = null
+        document.getElementById('fileInput').addEventListener('change', update);
+        document.getElementById('interp').addEventListener('click', handleFileSelect);
+        function update(e) {
+            event = e;
+            handleFileSelect(event);
+        }
+        function handleFileSelect() {
             const file = event.target.files[0];
             const reader = new FileReader();
             reader.onload = function(e) {
