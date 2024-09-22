@@ -6,31 +6,25 @@
     <title>Text to Image</title>
 </head>
 <body>
-    <canvas id="canvas"></canvas>
     <input type="file" id="fileInput" />
-
+    <input type="number" step="1" id="width">
+    <canvas id="canvas"></canvas>
     <script>
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
-
         document.getElementById('fileInput').addEventListener('change', handleFileSelect);
-
         function handleFileSelect(event) {
             const file = event.target.files[0];
             const reader = new FileReader();
-
             reader.onload = function(e) {
                 const text = e.target.result;
                 const pixelValues = text.split('').map(data => data.charCodeAt(0));
-                
-                const width = 480;
+                const width = Number(document.getElementById("width").value || "480")
                 const height = Math.ceil(pixelValues.length / width);
                 canvas.width = width;
                 canvas.height = height;
-
                 const imageData = ctx.createImageData(width, height);
                 const data = imageData.data;
-
                 for (let y = 0; y < height; y++) {
                     for (let x = 0; x < width; x++) {
                         const value = pixelValues[x + (y * width)];
@@ -41,10 +35,8 @@
                         data[index + 3] = 255;
                     }
                 }
-
                 ctx.putImageData(imageData, 0, 0);
             };
-
             reader.readAsText(file);
         }
     </script>
