@@ -118,10 +118,14 @@
                 audioDuration = audioElement.duration;
             };
 
-            audioElement.ontimeupdate = () => {
+            const de = () => {
                 const currentTime = audioElement.currentTime;
                 updateCanvasWithProgress(currentTime);
+                if (!audioElement.paused) {
+                    requestAnimationFrame(de);
+                }
             };
+            audioElement.ontimeupdate = de
 
             audioElement.play();
         });
@@ -135,7 +139,6 @@
 
             for (let i = 0; i < currentPixelIndex; i++) {
                 const index = i * 4;
-                data[index] = 255;      // Red color for R
                 data[index + 1] = 0;    // Green (set to 0)
                 data[index + 2] = 0;    // Blue (set to 0)
                 data[index + 3] = 255;  // Fully opaque
