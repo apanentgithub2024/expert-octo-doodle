@@ -11,42 +11,45 @@
     <button id="convertButton">Convert and Revert</button>
     <a id="downloadLink" style="display:none;">Download Converted File</a>
 
-    <script>
-        document.getElementById('convertButton').addEventListener('click', async () => {
-            const fileInput = document.getElementById('fileInput');
-            const file = fileInput.files[0];
+<script>
+    document.getElementById('convertButton').addEventListener('click', async () => {
+        const fileInput = document.getElementById('fileInput');
+        const file = fileInput.files[0];
 
-            if (!file) {
-                alert('Please upload a file.');
-                return;
-            }
+        if (!file || !file.name.endsWith('.exe')) {
+            alert('Please upload a .exe file.');
+            return;
+        }
 
-            // Step 1: Convert file to manipulated data (grayscale or any other transformation)
-            const arrayBuffer = await readFileAsArrayBuffer(file);
-            const uint8Array = new Uint8Array(arrayBuffer);
+        // Step 1: Read the file
+        const arrayBuffer = await readFileAsArrayBuffer(file);
+        const uint8Array = new Uint8Array(arrayBuffer);
 
-            // Step 2: Example manipulation: invert the bytes (for demonstration)
-            const manipulatedData = uint8Array.map(byte => 255 - byte);  // Simple inversion for demonstration
-
-            // Step 3: Revert back with slight corruption
-            const manipulatedBlob = new Blob([[...manipulatedData].map(byte => Math.max(0, Math.round(255 - (Math.random() * 0.51)) - byte))], { type: file.type });
-
-            // Set up download link
-            const downloadLink = document.getElementById('downloadLink');
-            downloadLink.href = URL.createObjectURL(manipulatedBlob);
-            downloadLink.download = `converted_${file.name}`; // Give it a proper name
-            downloadLink.style.display = 'block';
-            downloadLink.textContent = 'Download Converted File';
+        // Step 2: Example manipulation (corruption)
+        const corruptionLevel = 0.1;  // 10% of the bytes will be corrupted
+        const corruptedData = uint8Array.map(byte => {
+            return Math.random() < corruptionLevel ? (byte ^ (Math.floor(Math.random() * 255))) : byte;
         });
 
-        function readFileAsArrayBuffer(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = (event) => resolve(event.target.result);
-                reader.onerror = reject;
-                reader.readAsArrayBuffer(file);
-            });
-        }
-    </script>
+        // Step 3: Create a corrupted blob
+        const corruptedBlob = new Blob([corruptedData], { type: file.type });
+
+        // Set up download link
+        const downloadLink = document.getElementById('downloadLink');
+        downloadLink.href = URL.createObjectURL(corruptedBlob);
+        downloadLink.download = `corrupted_${file.name}`;
+        downloadLink.style.display = 'block';
+        downloadLink.textContent = 'Download Corrupted .exe File';
+    });
+
+    function readFileAsArrayBuffer(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (event) => resolve(event.target.result);
+            reader.onerror = reject;
+            reader.readAsArrayBuffer(file);
+        });
+    }
+</script>
 </body>
 </html>
