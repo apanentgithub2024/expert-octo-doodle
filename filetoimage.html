@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text to Image</title>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <input type="file" id="fileInput" />
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        document.getElementById('fileInput').addEventListener('change', handleFileSelect);
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const text = e.target.result;
+                const pixelValues = text.split('').map(line => String.fromCharCode(line));
+                
+                const width = pixelValues[0].length;
+                const height = pixelValues.length;
+                canvas.width = width;
+                canvas.height = height;
+
+                const imageData = ctx.createImageData(width, height);
+                const data = imageData.data;
+
+                for (let y = 0; y < height; y++) {
+                    for (let x = 0; x < width; x++) {
+                        const value = pixelValues[y][x];
+                        const index = (y * width + x) * 4; // RGBA
+                        data[index] = value;     // Red
+                        data[index + 1] = value; // Green
+                        data[index + 2] = value; // Blue
+                        data[index + 3] = 255;    // Alpha
+                    }
+                }
+
+                ctx.putImageData(imageData, 0, 0);
+            };
+
+            reader.readAsText(file);
+        }
+    </script>
+</body>
+</html>
