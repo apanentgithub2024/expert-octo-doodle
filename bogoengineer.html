@@ -9,7 +9,7 @@
     <h1>BogoEngineering: Convert Files!</h1>
     <input type="file" id="fileInput" />
     <button id="convertButton">Convert and Revert</button>
-    <a id="downloadLink" style="display:none;">Download Original File</a>
+    <a id="downloadLink" style="display:none;">Download Converted File</a>
 
     <script>
         document.getElementById('convertButton').addEventListener('click', async () => {
@@ -21,31 +21,32 @@
                 return;
             }
 
-            // Step 1: Convert file to image (grayscale)
-            const text = await readFileAsText(file);
-            const audio = new Float32Array(text.split('').map(data => data.charCodeAt(0) / 65536));
-            const reversedResult = [...audio].map(data => String.fromCharCode(Math.round(data * 65536))).join("")
+            // Step 1: Convert file to manipulated data (grayscale or any other transformation)
+            const arrayBuffer = await readFileAsArrayBuffer(file);
+            const uint8Array = new Uint8Array(arrayBuffer);
 
-            // Step 3: Revert back to original file (for demo, we'll use the original text)
-            const originalBlob = new Blob([reversedResult], { type: file.type });
+            // Step 2: Example manipulation: invert the bytes (for demonstration)
+            const manipulatedData = uint8Array.map(byte => byte / 3);  // Simple inversion for demonstration
+
+            // Step 3: Revert back (for now, just using the manipulated version)
+            const manipulatedBlob = new Blob([[...manipulatedData].map(byte => byte * 3)], { type: file.type });
 
             // Set up download link
             const downloadLink = document.getElementById('downloadLink');
-            downloadLink.href = URL.createObjectURL(originalBlob);
-            downloadLink.download = 'original'; // You can change this name
+            downloadLink.href = URL.createObjectURL(manipulatedBlob);
+            downloadLink.download = `converted_${file.name}`; // Give it a proper name
             downloadLink.style.display = 'block';
-            downloadLink.textContent = 'Download BogoEngineered File';
+            downloadLink.textContent = 'Download Converted File';
         });
 
-        function readFileAsText(file) {
+        function readFileAsArrayBuffer(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.onload = (event) => resolve(event.target.result);
                 reader.onerror = reject;
-                reader.readAsText(file);
+                reader.readAsArrayBuffer(file);
             });
         }
-    }
     </script>
 </body>
 </html>
