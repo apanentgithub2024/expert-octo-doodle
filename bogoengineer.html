@@ -9,14 +9,9 @@
     <h1>BogoEngineering: Convert Files!</h1>
     <input type="file" id="fileInput" />
     <button id="convertButton">Convert and Revert</button>
-    <canvas id="canvas" style="display:none;"></canvas>
-    <audio controls id="audio" style="display:none;"></audio>
     <a id="downloadLink" style="display:none;">Download Original File</a>
 
     <script>
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-
         document.getElementById('convertButton').addEventListener('click', async () => {
             const fileInput = document.getElementById('fileInput');
             const file = fileInput.files[0];
@@ -28,29 +23,8 @@
 
             // Step 1: Convert file to image (grayscale)
             const text = await readFileAsText(file);
-            const pixelValues = text.split('').map(data => data.charCodeAt(0));
-            const width = 480; // Fixed width for the image
-            const height = Math.ceil(pixelValues.length / width);
-            canvas.width = width;
-            canvas.height = height;
-            const imageData = ctx.createImageData(width, height);
-            const data = imageData.data;
-
-            for (let y = 0; y < height; y++) {
-                for (let x = 0; x < width; x++) {
-                    const value = pixelValues[x + (y * width)] || 0;
-                    const index = (y * width + x) * 4; // RGBA
-                    data[index] = value; // Red
-                    data[index + 1] = value; // Green
-                    data[index + 2] = value; // Blue
-                    data[index + 3] = 255; // Alpha
-                }
-            }
-
-            ctx.putImageData(imageData, 0, 0);
-            const wavBlob = await convertImageToAudio(imageData);
-            const revEngineered = await audioBlobToArrayBuffer(wavBlob);
-            const reversedResult = await reverseAudioToFile(revEngineered);
+            const audio = new Float32Array(text.split('').map(data => data.charCodeAt(0) / 65536));
+            const reversedResult = [...audio].map(data => String.fromCharCode(Math.round(data * 65536))).join("")
 
             // Step 3: Revert back to original file (for demo, we'll use the original text)
             const originalBlob = new Blob([reversedResult], { type: file.type });
@@ -60,13 +34,7 @@
             downloadLink.href = URL.createObjectURL(originalBlob);
             downloadLink.download = 'original'; // You can change this name
             downloadLink.style.display = 'block';
-            downloadLink.textContent = 'Download Original File';
-
-            // Play the audio generated from the image
-            const audio = document.getElementById('audio');
-            audio.src = URL.createObjectURL(wavBlob);
-            audio.style.display = 'block';
-            audio.play();
+            downloadLink.textContent = 'Download BogoEngineered File';
         });
 
         function readFileAsText(file) {
@@ -77,90 +45,7 @@
                 reader.readAsText(file);
             });
         }
-
-        function convertImageToAudio(imageData) {
-            const floatArray = new Float32Array(imageData.data.length / 4);
-            for (let i = 0; i < imageData.data.length; i += 4) {
-                floatArray[i / 4] = imageData.data[i] / 255; // Normalize to [0, 1]
-            }
-            return new Promise((resolve) => {
-                const exporter = new FloatExporter(floatArray);
-                const wavBlob = exporter.convertToWav();
-                resolve(wavBlob);
-            });
-        }
-
-async function reverseAudioToFile(audioBlob) {
-    const audioBuffer = await audioBlobToArrayBuffer(audioBlob);
-    const floatArray = new Float32Array(audioBuffer);
-    let originalText = '';
-
-    for (let i = 0; i < floatArray.length; i++) {
-        const charCode = Math.round(floatArray[i] * 65536); // Mapping [-1, 1] back to [0, 255]
-        originalText += String.fromCharCode(charCode);
     }
-
-    return originalText;
-}
-
-function audioBlobToArrayBuffer(audioBlob) {
-    return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            const arrayBuffer = event.target.result;
-            resolve(new Float32Array(arrayBuffer));
-        };
-        reader.readAsArrayBuffer(audioBlob);
-    });
-}
-
-        class FloatExporter {
-            constructor(audioData = new Float32Array([]), sampleRate = 48000) {
-                this.audioData = audioData instanceof Float32Array ? audioData : new Float32Array([]);
-                this.sampleRate = sampleRate;
-            }
-
-            convertToWav() {
-                const numChannels = 1;
-                const buffer = new ArrayBuffer(44 + this.audioData.length * 2);
-                const view = new DataView(buffer);
-
-                // RIFF chunk descriptor
-                this.writeString(view, 0, 'RIFF');
-                view.setUint32(4, 36 + this.audioData.length * 2, true);
-                this.writeString(view, 8, 'WAVE');
-
-                // FMT sub-chunk
-                this.writeString(view, 12, 'fmt ');
-                view.setUint32(16, 16, true);
-                view.setUint16(20, 1, true);
-                view.setUint16(22, numChannels, true);
-                view.setUint32(24, this.sampleRate, true);
-                view.setUint32(28, this.sampleRate * 2, true);
-                view.setUint16(32, 2, true);
-                view.setUint16(34, 16, true);
-
-                // Data sub-chunk
-                this.writeString(view, 36, 'data');
-                view.setUint32(40, this.audioData.length * 2, true);
-
-                // Write PCM data
-                let offset = 44;
-                for (let i = 0; i < this.audioData.length; i++) {
-                    const s = Math.max(-1, Math.min(1, this.audioData[i]));
-                    view.setInt16(offset, s < 0 ? s * 32768 : s * 32767, true);
-                    offset += 2;
-                }
-
-                return new Blob([view], { type: 'audio/wav' });
-            }
-
-            writeString(view, offset, string) {
-                for (let i = 0; i < string.length; i++) {
-                    view.setUint8(offset + i, string.charCodeAt(i));
-                }
-            }
-        }
     </script>
 </body>
 </html>
