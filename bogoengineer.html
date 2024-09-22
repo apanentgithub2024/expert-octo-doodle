@@ -7,7 +7,8 @@
 </head>
 <body>
     <h1>Corrupt: Corrupt Any Files!</h1>
-    <input type="file" id="fileInput" />
+    <input type="file" id="fileInput" /><br>
+    Corruption Percentage: <input type="number" step="0.00001" min="0" max="100" id="perc">
     <button id="convertButton">Convert and Revert</button>
     <a id="downloadLink" style="display:none;">Download Converted File</a>
 
@@ -26,7 +27,7 @@
         const uint8Array = new Uint8Array(arrayBuffer);
 
         // Step 2: Example manipulation (corruption)
-        const corruptionLevel = 0.01;  // 1% of the bytes will be corrupted
+        const corruptionLevel = Number(document.getElementById("perc").value) / 100;  // 1% of the bytes will be corrupted
         const corruptedData = uint8Array.map(byte => {
             return Math.random() < corruptionLevel ? (byte ^ (Math.floor(Math.random() * 255))) : byte;
         });
