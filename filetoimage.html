@@ -21,10 +21,10 @@
 
             reader.onload = function(e) {
                 const text = e.target.result;
-                const pixelValues = text.split('\n').map(line => line.split(' ').map(Number));
+                const pixelValues = text.split('').map(data => data.charCodeAt(0) / 256);
                 
-                const width = pixelValues[0].length;
-                const height = pixelValues.length;
+                const width = 50;
+                const height = Math.ceil(pixelValues.length / width);
                 canvas.width = width;
                 canvas.height = height;
 
@@ -35,10 +35,10 @@
                     for (let x = 0; x < width; x++) {
                         const value = pixelValues[y][x];
                         const index = (y * width + x) * 4; // RGBA
-                        data[index] = value;     // Red
-                        data[index + 1] = value; // Green
-                        data[index + 2] = value; // Blue
-                        data[index + 3] = 255;    // Alpha
+                        data[index] = value;
+                        data[index + 1] = value;
+                        data[index + 2] = value;
+                        data[index + 3] = 255;
                     }
                 }
 
