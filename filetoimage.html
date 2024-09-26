@@ -73,9 +73,9 @@
                     for (let x = 0; x < width; x++) {
                         const valueIndex = (x + (y * width)) * 3;
                         const index = (y * width + x) * 4; // RGBA
-                        data[index] = imageData[valueIndex] || 0;
-                        data[index + 1] = imageData[valueIndex + 1] || 0;
-                        data[index + 2] = imageData[valueIndex + 2] || 0;
+                        data[index] = pixelValues[valueIndex] || 0;
+                        data[index + 1] = pixelValues[valueIndex + 1] || 0;
+                        data[index + 2] = pixelValues[valueIndex + 2] || 0;
                         data[index + 3] = 255;
                     }
                 }
