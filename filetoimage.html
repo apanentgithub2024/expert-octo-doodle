@@ -8,7 +8,8 @@
 <body>
     <input type="file" id="fileInput" />
     <input type="number" step="1" id="width">
-    <button id="interp">Update Result</button>
+    <button id="interp">Update Result as Text File</button>
+    <button id="interptext">Update Result as Binary File</button>
     <br>
     <canvas id="canvas"></canvas>
     <script>
@@ -16,17 +17,18 @@
         const ctx = canvas.getContext('2d');
         let event = null
         document.getElementById('fileInput').addEventListener('change', update);
-        document.getElementById('interp').addEventListener('click', handleFileSelect);
+        document.getElementById('interp').addEventListener('click', () => handleFileSelect(false));
+        document.getElementById('interptext').addEventListener('click', () => handleFileSelect(true));
         function update(e) {
             event = e;
             handleFileSelect(event);
         }
-        function handleFileSelect() {
+        function handleFileSelect(uint) {
             const file = event.target.files[0];
             const reader = new FileReader();
             reader.onload = function(e) {
                 const text = e.target.result;
-                const pixelValues = text.split('').map(data => data.charCodeAt(0));
+                const pixelValues = uint ? new Uint8Array(text) : text.split('').map(data => data.charCodeAt(0));
                 const width = Number(document.getElementById("width").value || "480")
                 const height = Math.ceil(pixelValues.length / width);
                 canvas.width = width;
@@ -45,7 +47,11 @@
                 }
                 ctx.putImageData(imageData, 0, 0);
             };
-            reader.readAsText(file);
+            if (uint) {
+                reader.readAsArrayBuffer(file);
+            } else {
+                reader.readAsText(file);
+            }
         }
     </script>
 </body>
