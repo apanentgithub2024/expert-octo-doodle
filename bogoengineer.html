@@ -29,12 +29,11 @@
                 "You may continue running this if you need to, but you shouldn't say I didn't warn you!"
             ],
             ".mp3": [
-                "Audio files like MP3 are generally fine, but you may hear unexpected, loud glitch noises! You may also see that the audio abrubtly ends! This is normally because the settings in the file are configured. Those are called \"unused samples\"."
+                "Audio files like MP3 are generally fine, but you may hear unexpected, loud glitch noises! You may also hear that the audio abrubtly ends! This is normally because the settings in the file are configured. Those are called \"unused samples\"."
             ]
         }
         let count = 0
-        file.name.replace(/\./g, () => count++)
-        const fileExtension = file.name.split(".")[count]
+        const fileExtension = file.name.split(".").pop().toLowerCase()
         if (warnings[fileExtension]) {
             for (let i = 0, warn = null; i < warnings[fileExtension].length && (warn = confirm(warnings[fileExtension][i])); i++) {
                 if (!warn) {
