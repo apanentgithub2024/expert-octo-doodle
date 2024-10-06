@@ -69,7 +69,7 @@ document.getElementById('generateSound').addEventListener('click', async () => {
             const g = data[i + 1];
             const b = data[i + 2];
             const a = data[i + 3];
-            floatArray[i / 4] = (r + g + b + a / 510) - 1;
+            floatArray[i / 4] = (((r + g + b) / 255) - 0.75) * (a / 255);
         }
         ctx.clearRect(0, 0, canvas.width, canvas.height)
 
